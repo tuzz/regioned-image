@@ -1,7 +1,8 @@
 "use strict";
 
 var MockImage = function () {
-  this.bar = function () {};
+  this.width = 600;
+  this.height = 400;
 };
 
 global.Image = MockImage;
