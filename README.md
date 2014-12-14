@@ -1,9 +1,27 @@
-## regionedImage.js
+## regioned-image
 
 Coming soon...
 
 Breaks an image into regions of contiguous pixels. You can set the colors
 and boundaries of regioned images and render them to a canvas.
+
+## Setup
+
+Install the package.
+
+```
+npm install regioned-image --save
+```
+
+Require the module.
+
+```javascript
+var RegionedImage = require("regioned-image");
+```
+
+Note: RegionedImage needs to run a browser context. You can use something like
+[browserify](http://browserify.org/) to bundle RegionedImage as a dependency.
+Take a look at the example if you need help with this.
 
 ## Usage
 

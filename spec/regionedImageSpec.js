@@ -26,5 +26,4 @@ describe("RegionedImage", function () {
   });
 
   // TODO specs for region
-  // TODO convert rawImage to a node module
 });
