@@ -1,7 +1,5 @@
 ## regioned-image
 
-Coming soon...
-
 Breaks an image into regions of contiguous pixels. You can set the colors
 and boundaries of regioned images and render them to a canvas.
 
@@ -90,3 +88,13 @@ var image = new RegionedImage("france.svg", {
 
 The aspect ratio of the image will be preserved. This means that the image may
 be smaller than the width and height specified.
+
+## Screenshot
+
+![Screenshot](examples/screenshot.png)
+
+## Contribution
+
+Please send a pull request or open an issue.
+
+You should follow me on [twitter](https://twitter.com/cpatuzzo).
