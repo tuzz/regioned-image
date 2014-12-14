@@ -45,3 +45,5 @@ global.RegionedImage = require("../lib/regionedImage");
 module.exports.triggerLoad = function () {
   mockImage.onload();
 };
+
+module.exports.mockCanvas = mockCanvas;

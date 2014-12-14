@@ -49,4 +49,31 @@ describe("RegionedImage", function () {
       expect(subject.regionAt({ x: 0,  y: 9 })).toBeUndefined();
     });
   });
+
+  describe("#render", function () {
+    it("renders the image to a canvas", function (){
+      var canvas = helpers.mockCanvas;
+      var context = canvas.getContext("2d");
+      var imageData = context.getImageData();
+
+      var whiteRegion = subject.buildRegion({ x: 0, y: 0 });
+      var blackRegion = subject.buildRegion({ x: 3, y: 0 });
+
+      whiteRegion.color         = "#111111";  // 17
+      whiteRegion.boundaryColor = "#222222";  // 34
+      blackRegion.color         = "#333333";  // 51
+      blackRegion.boundaryColor = "#444444";  // 68
+
+      subject.render(canvas);
+
+      expect(imageData.data).toEqual([
+        34,34,34,255,   34,34,34,255,      34,34,34,255,      68,68,68,255,
+        34,34,34,255,   17,17,17,255,      34,34,34,255,      68,68,68,255,
+        34,34,34,255,   17,17,17,255,      34,34,34,255,      68,68,68,255,
+        34,34,34,255,   34,34,34,255,      68,68,68,255,      68,68,68,255,
+        34,34,34,255,   68,68,68,255,      51,51,51,255,      68,68,68,255,
+        34,34,34,255,   68,68,68,255,      68,68,68,255,      68,68,68,255
+      ]);
+    });
+  });
 });
