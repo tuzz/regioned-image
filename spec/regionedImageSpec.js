@@ -18,6 +18,23 @@ describe("RegionedImage", function () {
     expect(subject.height).toEqual(6);
   });
 
+  it("has a 'regions' property", function () {
+    expect(subject.regions.length).toEqual(0);
+  });
+
+  describe("initialization", function () {
+    beforeEach(function () {
+      var options = { width: 2, height: 3 };
+      subject = new RegionedImage("image.png", options);
+      helpers.triggerLoad();
+    });
+
+    it("supports specifying a width and height", function () {
+      expect(subject.width).toEqual(2);
+      expect(subject.height).toEqual(3);
+    });
+  });
+
   describe("#buildRegion", function () {
     it("adds an element to the image's regions", function () {
       expect(subject.regions.length).toEqual(0);
