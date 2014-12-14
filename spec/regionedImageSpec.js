@@ -35,6 +35,19 @@ describe("RegionedImage", function () {
     });
   });
 
+  describe("#onload", function () {
+    it("calls the onload method when the image loads", function () {
+      var called = false;
+
+      subject.onload = function () {
+        called = true;
+      };
+
+      helpers.triggerLoad();
+      expect(called).toEqual(true);
+    });
+  });
+
   describe("#buildRegion", function () {
     it("adds an element to the image's regions", function () {
       expect(subject.regions.length).toEqual(0);
