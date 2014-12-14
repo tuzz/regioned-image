@@ -50,17 +50,14 @@ Take a look at the example if you need help with this.
     // Print the original color of the region.
     console.log(blueRegion.originalColor); // #0055A4
 
-    // Set the region's color to yellow.
-    blueRegion.setColor("#FFFF00");
+    // Print whether the region contains a cell.
+    console.log(blueRegion.contains({ x: 90, y: 20 })); // true
 
-    // Print the current color of the region.
-    console.log(blueRegion.currentColor); // #FFFF00
+    // Set the region's color to yellow.
+    blueRegion.color = "#FFFF00";
 
     // Set the region's boundary color to green.
-    blueRegion.setBoundaryColor("#00FF00");
-
-    // Print the current boundary color of the region.
-    console.log(blueRegion.currentBoundaryColor); // #00FF00
+    blueRegion.boundaryColor = "#00FF00";
 
     // Get the red region by specifying a pixel inside the region.
     var redRegion = image.regionAt({ x: 490, y: 20 });
