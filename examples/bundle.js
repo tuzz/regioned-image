@@ -48,7 +48,7 @@ button.addEventListener("click", function () {
 var _     = require("underscore");
 var toHex = require("hex-rgb-converter").toHex;
 
-module.exports = function (options) {
+var Region = function (options) {
   var self = this;
 
   var initialize = function () {
@@ -76,6 +76,10 @@ module.exports = function (options) {
   };
 
   var setOriginalColor = function () {
+    if (!options.rawImage) {
+      return;
+    }
+
     var rawImage      = options.rawImage;
     var x             = self.cells[0][0];
     var y             = self.cells[0][1];
@@ -99,6 +103,22 @@ module.exports = function (options) {
   initialize();
 };
 
+module.exports = Region;
+
+module.exports.load = function (data, regionedImage) {
+  var region = new Region(data);
+
+  region.cells         = data.cells;
+  region.boundaryCells = data.boundaryCells;
+  region.size          = data.size;
+  region.originalColor = data.originalColor;
+  region.color         = data.color;
+  region.boundaryColor = data.boundaryColor;
+  region.regionedImage = regionedImage;
+
+  return region;
+};
+
 },{"hex-rgb-converter":4,"underscore":7}],3:[function(require,module,exports){
 "use strict";
 
@@ -108,15 +128,19 @@ var floodFill = require("n-dimensional-flood-fill");
 var RawImage  = require("raw-image");
 var Region    = require("./region");
 
-module.exports = function (path, options) {
+var RegionedImage = function (path, options) {
   var self = this;
+
+  self.path    = path;
+  self.options = options;
+  self.regions = [];
+  self.onload  = function () { };
+
   var rawImage = new RawImage(path, options);
-  self.onload = function () { };
 
   rawImage.onload = function () {
     self.width = rawImage.width;
     self.height = rawImage.height;
-    self.regions = [];
 
     self.onload();
   };
@@ -164,6 +188,10 @@ module.exports = function (path, options) {
     rawImage.render(canvas);
   };
 
+  self.toJson = function () {
+    return JSON.stringify(self);
+  };
+
   var toColor = function (hex) {
     var rgb = toRGB(hex.slice(1, hex.length));
 
@@ -174,6 +202,19 @@ module.exports = function (path, options) {
       alpha: 255
     };
   };
+};
+
+module.exports = RegionedImage;
+
+module.exports.fromJson = function (json) {
+  var data = JSON.parse(json);
+
+  var regionedImage = new RegionedImage(data.path, data.options);
+  regionedImage.regions = _.map(data.regions, function (regionData) {
+    return Region.load(regionData, regionedImage);
+  });
+
+  return regionedImage;
 };
 
 },{"./region":2,"hex-rgb-converter":4,"n-dimensional-flood-fill":5,"raw-image":6,"underscore":7}],4:[function(require,module,exports){

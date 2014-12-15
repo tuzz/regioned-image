@@ -129,6 +129,9 @@ describe("RegionedImage", function () {
 
       clone.buildRegion({ x: 3, y: 5 });
       expect(clone.regions.length).toEqual(2);
+
+      var region = clone.regions[0];
+      expect(region.contains({ x: 0, y: 0})).toEqual(true);
     });
   });
 });
