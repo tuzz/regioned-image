@@ -1,6 +1,6 @@
 {
   "name": "regioned-image",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Breaks an image into regions of contiguous pixels.",
   "author": "Chris Patuzzo <chris@patuzzo.co.uk>",
   "license": "MIT",
