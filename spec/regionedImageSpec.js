@@ -81,7 +81,7 @@ describe("RegionedImage", function () {
   });
 
   describe("#render", function () {
-    it("renders the image to a canvas", function (){
+    it("renders the image to a canvas", function () {
       var canvas = helpers.mockCanvas;
       var context = canvas.getContext("2d");
       var imageData = context.getImageData();
@@ -104,6 +104,31 @@ describe("RegionedImage", function () {
         34,34,34,255,   68,68,68,255,      51,51,51,255,      68,68,68,255,
         34,34,34,255,   68,68,68,255,      68,68,68,255,      68,68,68,255
       ]);
+    });
+  });
+
+  describe("#toJson", function () {
+    it("returns a JSON representation of the image", function () {
+      subject.buildRegion({ x: 0, y: 0 });
+
+      var json = subject.toJson();
+      var obj = JSON.parse(json);
+
+      expect(obj.path).toEqual("image.png");
+      expect(obj.regions.length).toEqual(1);
+    });
+  });
+
+  describe(".fromJson", function () {
+    it("returns a regioned image from the JSON", function () {
+      subject.buildRegion({ x: 0, y: 0 });
+
+      var json = subject.toJson();
+      var clone = RegionedImage.fromJson(json);
+      helpers.triggerLoad();
+
+      clone.buildRegion({ x: 3, y: 5 });
+      expect(clone.regions.length).toEqual(2);
     });
   });
 });
