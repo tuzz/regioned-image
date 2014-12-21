@@ -26,6 +26,12 @@ image.ontouch = function (coordinates) {
   image.render(canvas);
 };
 
+var button = document.getElementById("reset");
+button.addEventListener("click", function () {
+  image.reset();
+  image.render(canvas);
+});
+
 },{"../../lib/regionedImage":3}],2:[function(require,module,exports){
 "use strict";
 
@@ -181,6 +187,13 @@ var RegionedImage = function (path, options) {
 
     self.rawImage.render(canvas);
     canvas.addEventListener("mousedown", touchHandler);
+  };
+
+  self.reset = function () {
+    _.each(self.regions, function (region) {
+      region.color         = region.originalColor;
+      region.boundaryColor = region.originalColor;
+    });
   };
 
   self.toJson = function () {

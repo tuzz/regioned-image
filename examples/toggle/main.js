@@ -24,3 +24,9 @@ image.ontouch = function (coordinates) {
 
   image.render(canvas);
 };
+
+var button = document.getElementById("reset");
+button.addEventListener("click", function () {
+  image.reset();
+  image.render(canvas);
+});

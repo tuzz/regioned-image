@@ -183,6 +183,13 @@ var RegionedImage = function (path, options) {
     canvas.addEventListener("mousedown", touchHandler);
   };
 
+  self.reset = function () {
+    _.each(self.regions, function (region) {
+      region.color         = region.originalColor;
+      region.boundaryColor = region.originalColor;
+    });
+  };
+
   self.toJson = function () {
     return JSON.stringify(self);
   };
