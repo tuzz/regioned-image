@@ -174,4 +174,18 @@ describe("RegionedImage", function () {
       expect(coordinates).toEqual({ x: 1, y: 3 });
     });
   });
+
+  describe("#reset", function () {
+    it("resets region and boundary colors to the original color", function () {
+      var region = subject.buildRegion({ x: 0, y: 0 });
+
+      region.color         = "#123456";
+      region.boundaryColor = "#654321";
+
+      subject.reset();
+
+      expect(region.color).toEqual(region.originalColor);
+      expect(region.boundaryColor).toEqual(region.originalColor);
+    });
+  });
 });

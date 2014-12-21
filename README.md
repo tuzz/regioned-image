@@ -126,6 +126,14 @@ image.ontouch = function (x, y) {
 };
 ```
 
+## Reset
+
+You can reset all region colors and boundary colors with the #reset method.
+
+Note: If regions of different colors have been merged, it will reset to the
+original color of the merging region, which may not be the same as the original
+image.
+
 ## Screenshot
 
 ![Screenshot](examples/serialize/screenshot.png)
