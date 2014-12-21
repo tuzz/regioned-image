@@ -1,7 +1,7 @@
 // This file is used to generate bundle.js
-// browserify examples/main.js > examples/bundle.js
+// browserify examples/toggle/main.js > examples/toggle/bundle.js
 
-var RegionedImage = require("../lib/regionedImage");
+var RegionedImage = require("../../lib/regionedImage");
 
 var image = new RegionedImage("France.svg", {
   width: 400,

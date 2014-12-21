@@ -91,24 +91,24 @@ be smaller than the width and height specified.
 
 ## Serialization
 
-You can save and load your regioned images with JSON.
+Once the image has loaded, you can serialize your regioned image to json:
 
 ```javascript
 var image = new RegionedImage("france.svg");
-image.buildRegion({ x: 100, y: 10 });
+var json;
 
-var json = image.toJson();
-image = RegionedImage.fromJson(json);
+image.onload = function () {
+  image.buildRegion({ x: 100, y: 10 });
+  json = image.toJson();
+};
 
-console.log(image.regions.length) // 1
+var clone = RegionedImage.fromJson(json);
+console.log(clone.regions.length); // 1
 ```
-
-The raw image data is not included in the JSON. It will be re-read when loading
-the object.
 
 ## Screenshot
 
-![Screenshot](examples/screenshot.png)
+![Screenshot](examples/toggle/screenshot.png)
 
 ## Contribution
 

@@ -107,31 +107,25 @@ describe("RegionedImage", function () {
     });
   });
 
-  describe("#toJson", function () {
-    it("returns a JSON representation of the image", function () {
+  describe("serialization", function () {
+    it("serializes to and from json", function () {
       subject.buildRegion({ x: 0, y: 0 });
-
-      var json = subject.toJson();
-      var obj = JSON.parse(json);
-
-      expect(obj.path).toEqual("image.png");
-      expect(obj.regions.length).toEqual(1);
-    });
-  });
-
-  describe(".fromJson", function () {
-    it("returns a regioned image from the JSON", function () {
-      subject.buildRegion({ x: 0, y: 0 });
+      subject.regions[0].color = "#123456";
 
       var json = subject.toJson();
       var clone = RegionedImage.fromJson(json);
-      helpers.triggerLoad();
 
-      clone.buildRegion({ x: 3, y: 5 });
+      expect(clone.regions.length).toEqual(1);
+      var region = clone.regions[0];
+
+      expect(region.color).toEqual("#123456");
+      expect(region.contains({ x: 0, y: 0})).toEqual(true);
+
+      var otherRegion = clone.buildRegion({ x: 3, y: 5 });
       expect(clone.regions.length).toEqual(2);
 
-      var region = clone.regions[0];
-      expect(region.contains({ x: 0, y: 0})).toEqual(true);
+      region.merge(otherRegion);
+      expect(clone.regions.length).toEqual(1);
     });
   });
 });

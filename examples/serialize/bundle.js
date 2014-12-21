@@ -1,8 +1,8 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // This file is used to generate bundle.js
-// browserify examples/main.js > examples/bundle.js
+// browserify examples/serialize/main.js > examples/serialize/bundle.js
 
-var RegionedImage = require("../lib/regionedImage");
+var RegionedImage = require("../../lib/regionedImage");
 
 var image = new RegionedImage("France.svg", {
   width: 400,
@@ -10,39 +10,24 @@ var image = new RegionedImage("France.svg", {
 });
 
 image.onload = function () {
-  var canvas = document.getElementById("canvas");
-  image.render(canvas);
+  image.buildRegion({x: 200, y: 10 });
+  image.regions[0].color = "#FFFF00";
+
+  var canvas1 = document.getElementById("canvas1");
+  image.render(canvas1);
 };
 
 var button = document.getElementById("button");
-var blueRegion, redRegion, whiteRegion;
-var clicks = 0;
-
 button.addEventListener("click", function () {
-  clicks += 1;
+  var json = image.toJson();
+  var clone = RegionedImage.fromJson(json);
 
-  if (clicks === 1) {
-    blueRegion = image.buildRegion({ x: 50,  y: 10 });
-    redRegion  = image.buildRegion({ x: 350, y: 10 });
-
-    blueRegion.color         = "#FF9999";
-    blueRegion.boundaryColor = "#FF0000";
-    redRegion.color          = "#9999FF";
-    redRegion.boundaryColor  = "#0000FF";
-  }
-  else if (clicks === 2) {
-    whiteRegion = image.buildRegion({ x: 200, y: 10 });
-  }
-
-  if (clicks > 1) {
-    whiteRegion.color = "#"+Math.floor(Math.random()*16777215).toString(16);
-    whiteRegion.boundaryColor = "#000000";
-  }
-
-  image.render(canvas);
+  var canvas2 = document.getElementById("canvas2");
+  clone.render(canvas2);
+  alert(json);
 });
 
-},{"../lib/regionedImage":3}],2:[function(require,module,exports){
+},{"../../lib/regionedImage":3}],2:[function(require,module,exports){
 "use strict";
 
 var _     = require("underscore");
@@ -55,9 +40,17 @@ var Region = function (options) {
     self.cells         = options.cells;
     self.boundaryCells = options.boundaryCells;
     self.size          = self.cells.length;
-    self.originalColor = setOriginalColor();
-    self.color         = self.originalColor;
-    self.boundaryColor = self.originalColor;
+
+    if (options.originalColor) {
+      self.originalColor = options.originalColor;
+      self.color         = options.color;
+      self.boundaryColor = options.boundaryColor;
+    }
+    else {
+      self.originalColor = setOriginalColor();
+      self.color         = self.originalColor;
+      self.boundaryColor = self.originalColor;
+    }
   };
 
   self.contains = function (coordinates) {
@@ -76,10 +69,6 @@ var Region = function (options) {
   };
 
   var setOriginalColor = function () {
-    if (!options.rawImage) {
-      return;
-    }
-
     var rawImage      = options.rawImage;
     var x             = self.cells[0][0];
     var y             = self.cells[0][1];
@@ -103,21 +92,13 @@ var Region = function (options) {
   initialize();
 };
 
-module.exports = Region;
-
-module.exports.load = function (data, regionedImage) {
-  var region = new Region(data);
-
-  region.cells         = data.cells;
-  region.boundaryCells = data.boundaryCells;
-  region.size          = data.size;
-  region.originalColor = data.originalColor;
-  region.color         = data.color;
-  region.boundaryColor = data.boundaryColor;
-  region.regionedImage = regionedImage;
-
-  return region;
+Region.fromJson = function (json, regionedImage) {
+  var data = JSON.parse(json);
+  data.regionedImage = regionedImage;
+  return new Region(data);
 };
+
+module.exports = Region;
 
 },{"hex-rgb-converter":4,"underscore":7}],3:[function(require,module,exports){
 "use strict";
@@ -131,32 +112,44 @@ var Region    = require("./region");
 var RegionedImage = function (path, options) {
   var self = this;
 
-  self.path    = path;
-  self.options = options;
-  self.regions = [];
-  self.onload  = function () { };
+  var initialize = function () {
+    if (path) {
+      self.path    = path;
+      self.rawImage = new RawImage(path, options);
+      self.rawImage.onload = function () {
+        self.width = self.rawImage.width;
+        self.height = self.rawImage.height;
 
-  var rawImage = new RawImage(path, options);
-
-  rawImage.onload = function () {
-    self.width = rawImage.width;
-    self.height = rawImage.height;
-
-    self.onload();
+        self.onload();
+      };
+      self.regions = [];
+      self.onload  = function () { };
+    }
+    else {
+      self.path     = options.path;
+      var rawImageJson = JSON.stringify(options.rawImage);
+      self.rawImage = RawImage.fromJson(rawImageJson);
+      self.regions  = _.map(options.regions, function (regionData) {
+        var regionJson = JSON.stringify(regionData);
+        return Region.fromJson(regionJson, self);
+      });
+      self.width    = options.width;
+      self.height   = options.height;
+    }
   };
 
   self.buildRegion = function (coordinates) {
     var seed = [coordinates.x, coordinates.y];
 
     var result = floodFill({
-      getter: rawImage.get,
+      getter: self.rawImage.get,
       seed: seed,
       equals: _.isEqual
     });
 
     var region = new Region({
       regionedImage: self,
-      rawImage:      rawImage,
+      rawImage:      self.rawImage,
       cells:         result.flooded,
       boundaryCells: result.boundaries
     });
@@ -177,15 +170,15 @@ var RegionedImage = function (path, options) {
       var boundaryColor = toColor(region.boundaryColor);
 
       _.each(region.cells, function (c) {
-        rawImage.set(c[0], c[1], color);
+        self.rawImage.set(c[0], c[1], color);
       });
 
       _.each(region.boundaryCells, function (c) {
-        rawImage.set(c[0], c[1], boundaryColor);
+        self.rawImage.set(c[0], c[1], boundaryColor);
       });
     });
 
-    rawImage.render(canvas);
+    self.rawImage.render(canvas);
   };
 
   self.toJson = function () {
@@ -202,20 +195,16 @@ var RegionedImage = function (path, options) {
       alpha: 255
     };
   };
+
+  initialize();
+};
+
+RegionedImage.fromJson = function (json) {
+  var data = JSON.parse(json);
+  return new RegionedImage(undefined, data);
 };
 
 module.exports = RegionedImage;
-
-module.exports.fromJson = function (json) {
-  var data = JSON.parse(json);
-
-  var regionedImage = new RegionedImage(data.path, data.options);
-  regionedImage.regions = _.map(data.regions, function (regionData) {
-    return Region.load(regionData, regionedImage);
-  });
-
-  return regionedImage;
-};
 
 },{"./region":2,"hex-rgb-converter":4,"n-dimensional-flood-fill":5,"raw-image":6,"underscore":7}],4:[function(require,module,exports){
 (function(e){e["toRGBA"]=function(e,t){var n=parseInt(e,16);return[n>>16,n>>8&&255,n*255,t]},e["toRGB"]=function(e){var t=parseInt(e,16);return[t>>16,t>>8&255,t&255]};e["toHex"]=function(e,t,n){return(n|t<<8|e<<16|1<<24).toString(16).slice(1)}})(this)
@@ -398,24 +387,30 @@ module.exports = function (options) {
 },{}],6:[function(require,module,exports){
 "use strict";
 
-module.exports = function (src, options) {
+var RawImage = function (src, options) {
   var self = this;
-  var imageData;
   var scale;
 
   var initialize = function () {
     options = options || {};
-    var image = new Image();
 
-    image.src = src;
-    image.onload = function () {
-      setDimensions(image);
-      imageData = getImageData(image);
+    if (options.imageData) {
+      self.width     = options.width;
+      self.height    = options.height;
+      self.imageData = getImageData();
+    }
+    else {
+      var image = new Image();
 
-      self.onload();
-    };
+      image.src = src;
+      image.onload = function () {
+        setDimensions(image);
+        self.imageData = getImageData(image);
+
+        self.onload();
+      };
+    }
   };
-  initialize();
 
   this.onload = function () {};
 
@@ -424,10 +419,10 @@ module.exports = function (src, options) {
       var i = index(x, y);
 
       return {
-        "red":   imageData.data[i + 0],
-        "green": imageData.data[i + 1],
-        "blue":  imageData.data[i + 2],
-        "alpha": imageData.data[i + 3]
+        "red":   self.imageData.data[i + 0],
+        "green": self.imageData.data[i + 1],
+        "blue":  self.imageData.data[i + 2],
+        "alpha": self.imageData.data[i + 3]
       };
     }
   };
@@ -436,10 +431,10 @@ module.exports = function (src, options) {
     if (inBounds(x, y)) {
       var i = index(x, y);
 
-      imageData.data[i + 0] = color.red;
-      imageData.data[i + 1] = color.green;
-      imageData.data[i + 2] = color.blue;
-      imageData.data[i + 3] = color.alpha;
+      self.imageData.data[i + 0] = color.red;
+      self.imageData.data[i + 1] = color.green;
+      self.imageData.data[i + 2] = color.blue;
+      self.imageData.data[i + 3] = color.alpha;
     }
   };
 
@@ -447,7 +442,11 @@ module.exports = function (src, options) {
     resize(canvas);
 
     var context = canvas.getContext("2d");
-    context.putImageData(imageData, 0, 0);
+    context.putImageData(self.imageData, 0, 0);
+  };
+
+  this.toJson = function () {
+    return JSON.stringify(self);
   };
 
   // private
@@ -456,10 +455,19 @@ module.exports = function (src, options) {
     resize(canvas);
 
     var context = canvas.getContext("2d");
-    context.scale(scale, scale);
-    context.drawImage(image, 0, 0);
 
-    return context.getImageData(0, 0, self.width, self.height);
+    if (image) {
+      context.scale(scale, scale);
+      context.drawImage(image, 0, 0);
+      return context.getImageData(0, 0, self.width, self.height);
+    }
+    else {
+      var imageData = context.getImageData(0, 0, self.width, self.height);
+      for (var i = 0; i < imageData.data.length; i += 1) {
+        imageData.data[i] = options.imageData.data[i];
+      }
+      return imageData;
+    }
   };
 
   var inBounds = function (x, y) {
@@ -488,7 +496,16 @@ module.exports = function (src, options) {
     self.width  = image.width  = Math.floor(image.width  * scale);
     self.height = image.height = Math.floor(image.height * scale);
   };
+
+  initialize();
 };
+
+RawImage.fromJson = function (json) {
+  var data = JSON.parse(json);
+  return new RawImage(undefined, data);
+};
+
+module.exports = RawImage;
 
 },{}],7:[function(require,module,exports){
 //     Underscore.js 1.7.0
