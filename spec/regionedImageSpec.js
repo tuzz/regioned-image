@@ -128,4 +128,50 @@ describe("RegionedImage", function () {
       expect(clone.regions.length).toEqual(1);
     });
   });
+
+  describe("#ontouch", function () {
+    beforeEach(function () {
+      subject.render(helpers.mockCanvas);
+    });
+
+    it("does not break when no touch handler is set", function () {
+      expect(function () {
+        helpers.triggerTouch({ x: 1, y: 2 });
+      }).not.toThrow();
+    });
+
+    it("calls the handler with the touch coordinates", function () {
+      var coordinates;
+      subject.ontouch = function (c) {
+        coordinates = c;
+      };
+
+      helpers.triggerTouch({ x: 1, y: 2 });
+      expect(coordinates).toEqual({ x: 1, y: 2 });
+    });
+
+    it("does not register repeated touch handlers", function () {
+      var calls = 0;
+      subject.ontouch = function () {
+        calls += 1;
+      };
+
+      subject.render(helpers.mockCanvas);
+      subject.render(helpers.mockCanvas);
+      subject.render(helpers.mockCanvas);
+
+      helpers.triggerTouch({ x: 1, y: 2 });
+      expect(calls).toEqual(1);
+    });
+
+    it("rounds touch coordinates to the nearest integer", function () {
+      var coordinates;
+      subject.ontouch = function (c) {
+        coordinates = c;
+      };
+
+      helpers.triggerTouch({ x: 1.49, y: 2.5 });
+      expect(coordinates).toEqual({ x: 1, y: 3 });
+    });
+  });
 });

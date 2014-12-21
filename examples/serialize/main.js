@@ -23,5 +23,4 @@ button.addEventListener("click", function () {
 
   var canvas2 = document.getElementById("canvas2");
   clone.render(canvas2);
-  alert(json);
 });

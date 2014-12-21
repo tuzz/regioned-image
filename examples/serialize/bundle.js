@@ -24,7 +24,6 @@ button.addEventListener("click", function () {
 
   var canvas2 = document.getElementById("canvas2");
   clone.render(canvas2);
-  alert(json);
 });
 
 },{"../../lib/regionedImage":3}],2:[function(require,module,exports){
@@ -136,6 +135,8 @@ var RegionedImage = function (path, options) {
       self.width    = options.width;
       self.height   = options.height;
     }
+
+    self.ontouch = function () {};
   };
 
   self.buildRegion = function (coordinates) {
@@ -179,6 +180,7 @@ var RegionedImage = function (path, options) {
     });
 
     self.rawImage.render(canvas);
+    canvas.addEventListener("mousedown", touchHandler);
   };
 
   self.toJson = function () {
@@ -193,6 +195,25 @@ var RegionedImage = function (path, options) {
       green: rgb[1],
       blue:  rgb[2],
       alpha: 255
+    };
+  };
+
+  var touchHandler = function (event) {
+    var canvas = event.target;
+    var coordinates = relativeCoordinates(canvas, event);
+
+    self.ontouch(coordinates);
+  };
+
+  var relativeCoordinates = function (canvas, event) {
+    var rectangle = canvas.getBoundingClientRect();
+
+    var x = event.clientX - rectangle.left;
+    var y = event.clientY - rectangle.top;
+
+    return {
+      x: Math.round(x),
+      y: Math.round(y)
     };
   };
 

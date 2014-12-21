@@ -21,7 +21,9 @@ var mockContext = {
 
 var mockCanvas = {
   setAttribute: function () {},
-  getContext: function () { return mockContext; }
+  getContext: function () { return mockContext; },
+  addEventListener: function (_, callback) { this.callback = callback; },
+  getBoundingClientRect: function () { return { left: 10, top: 20 }; }
 };
 
 var mockDocument = {
@@ -44,6 +46,16 @@ global.RegionedImage = require("../lib/regionedImage");
 
 module.exports.triggerLoad = function () {
   mockImage.onload();
+};
+
+module.exports.triggerTouch = function (coordinates) {
+  var event = {
+    target: mockCanvas,
+    clientX: coordinates.x + 10,
+    clientY: coordinates.y + 20
+  };
+
+  mockCanvas.callback(event);
 };
 
 module.exports.mockCanvas = mockCanvas;

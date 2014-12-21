@@ -106,9 +106,29 @@ var clone = RegionedImage.fromJson(json);
 console.log(clone.regions.length); // 1
 ```
 
+## Touch events
+
+You can register a touch listener for the regioned image. It will be given the
+relative coordinates of the touch:
+
+```javascript
+var image = new RegionedImage("france.svg");
+var canvas = document.getElementById("canvas");
+
+image.onload = function () {
+  image.render(canvas);
+};
+
+image.ontouch = function (x, y) {
+  var region = image.buildRegion({ x: x, y: y });
+  region.color = "#FFFF00";
+  image.render(canvas);
+};
+```
+
 ## Screenshot
 
-![Screenshot](examples/toggle/screenshot.png)
+![Screenshot](examples/serialize/screenshot.png)
 
 ## Contribution
 
