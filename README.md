@@ -137,9 +137,3 @@ image.
 ## Screenshot
 
 ![Screenshot](examples/serialize/screenshot.png)
-
-## Contribution
-
-Please send a pull request or open an issue.
-
-You should follow me on [twitter](https://twitter.com/cpatuzzo).
